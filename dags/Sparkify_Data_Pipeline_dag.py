@@ -5,7 +5,6 @@ from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.postgres_operator import PostgresOperator
 from airflow.operators import (StageToRedshiftOperator, LoadFactOperator,
                                 LoadDimensionOperator, DataQualityOperator)
-#from helpers import SqlQueries
 import sql_statements
 
 # AWS_KEY = os.environ.get('AWS_KEY')
@@ -14,19 +13,19 @@ import sql_statements
 default_args = {
     'owner': 'udacity',
     'depends_on_past': False,
-    'start_date': datetime(2019, 7, 24),    
+    'start_date': datetime(2019, 7, 26),    
     #'end_date': datetime(2018, 11, 12),
     'email': ['airflow@example.com'],
     'email_on_failure': False,
     'email_on_retry': False,
-    'retries': 3,
-    'retry_delay': timedelta(minutes=5),
+    'retries': 1,
+    'retry_delay': timedelta(minutes=1),
+    'catchup': False,
 }
 
 dag = DAG('Sparkify_Data_Pipeline_dag',
           default_args=default_args,
-          description='Load and transform data in Redshift with Airflow',
-          catchup=False,
+          description='Load and transform data in Redshift with Airflow',          
           schedule_interval='0 0 * * *'
         )
 
@@ -81,35 +80,45 @@ load_user_dimension_table = LoadDimensionOperator(
     task_id='Load_user_dim_table',
     dag=dag,
     redshift_conn_id="redshift",
-    dim_table="users"
+    table_name="users",
+    sql_statement=sql_statements.user_table_insert,
+    append_data=True
 )
 
 load_song_dimension_table = LoadDimensionOperator(
     task_id='Load_song_dim_table',
     dag=dag,
     redshift_conn_id="redshift" ,
-    dim_table="songs"
+    table_name="songs",
+    sql_statement=sql_statements.song_table_insert,
+    append_data=True
 )
 
 load_artist_dimension_table = LoadDimensionOperator(
     task_id='Load_artist_dim_table',
     dag=dag,
     redshift_conn_id="redshift" ,
-    dim_table="artists"
+    table_name="artists",
+    sql_statement=sql_statements.artist_table_insert,
+    append_data=True
 )
 
 load_time_dimension_table = LoadDimensionOperator(
     task_id='Load_time_dim_table',
     dag=dag,
     redshift_conn_id="redshift",
-    dim_table="time"
+    table_name="time",
+    sql_statement=sql_statements.time_table_insert,
+    append_data=True
 )
 
 run_quality_checks = DataQualityOperator(
     task_id='Run_data_quality_checks',
     dag=dag,
     redshift_conn_id="redshift",
-    table="songplays"
+    check_sql="SELECT COUNT(*) FROM  songplays",
+    expected_value="320",
+    describe="Fact table songplay - whether this table has data or not !"
 )
 
 end_operator = DummyOperator(task_id='Stop_execution',  dag=dag)
