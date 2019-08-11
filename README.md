@@ -1,4 +1,4 @@
-# Data Engineering Nanodegree
+﻿# Data Engineering Nanodegree
 ## Project: Data Pipelines with Airflow
 ## Table of Contents
 * **Definition**
@@ -59,5 +59,10 @@
 
 * **Acknowledgement** : Must give credit to Udacity for the project. You can't use this for you Udacity capstone project. Otherwise, feel free to use the code here as you would like!
 
-* **Bonus** : While designing this project, I have followed below best practices. 
-
+* **Bonus** : Here are a few key concepts for Airflow:
+        1. DAG (Directed Acyclic Graph): a workflow which glues all the tasks with inter-dependencies.
+        1. Operator: a template for a specific type of work to be executed. For example, BashOperator represents how to execute a bash script while PythonOperator represents how to execute a python function, etc.
+        1. Sensor: a type of special operator which will only execute if a certain condition is met.
+        1. Task: a parameterized instance of an operator/sensor which represents a unit of actual work to be executed.
+        1. Plugin: an extension to allow users to easily extend Airflow with various custom hooks, operators, sensors, macros, and web views.
+        1. Pools: concurrency limit configuration for a set of Airflow tasks.
